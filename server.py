@@ -72,6 +72,65 @@ class Comment(db.Model):
     posted_time : Mapped[str] = mapped_column(Text, nullable=False) # TODO add time function which calculates the time from post being posted
 
 
+with app.app_context():
+    db.create_all()
+
+
+# Authentication Functions
+@login_manager.user_loader
+def load_user(user_id):
+    """
+    Loads a user by their ID for session management.
+    Args: user_id (int): The ID of the user to be loaded.
+    Returns: User: The user object if found, otherwise raises a 404 error.
+    """
+    return db.get_or_404(User, user_id)
+
+
+
+@login_manager.unauthorized_handler
+def handle_unauthorized_access():
+    """
+    Redirects the user to the login page if they attempt to access an endpoint
+    that requires authentication without being logged in.
+    """
+    return redirect(url_for("login"))
+
+
+def admin_only(function)->bool:
+    """
+    Check whether current user has admin privileges. Returns boolean
+    """
+    @wraps(function)
+    def decorated_function(*args, **kwargs):
+        if current_user.is_anonymous:
+            return redirect(url_for('login', next=request.url))
+        elif current_user.id == 1:
+            return function(*args, **kwargs)
+        else:
+            return function(*args, **kwargs)
+    return decorated_function
+
+
+def only_commenter(function)->bool:
+    """
+    Check whether user is owner of the comment. Return boolean.
+    """
+    @wraps(function)
+    def check(*args, **kwargs):
+        user = db.session.execute(db.select(Comment).where(Comment.author_id == current_user.id)).scalar()
+        if not current_user.is_authenticated or current_user.id != user.author_id:
+            return abort(403)
+        return function(*args, **kwargs)
+    return check
+
+
+def hash_password(password: str)->str:
+    return generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
+
+
+
+# Content pages 
 @app.route('/')
 def main_hub():
     return render_template("index.html", footer=footer_variables,

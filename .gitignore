@@ -1,4 +1,7 @@
 /venv
+/old_blog_data
+
+
 .env
 Procfile
 

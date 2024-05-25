@@ -1,30 +1,75 @@
-from flask import Flask, render_template, request
-from datetime import datetime
-from requests import get
-import scripts.web_email as email_module
+from flask import Flask, abort, render_template, redirect, url_for, flash, request
+from flask_bootstrap import Bootstrap5
+from flask_ckeditor import CKEditor
+from flask_gravatar import Gravatar
+from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import Integer, String, Text, ForeignKey
+from functools import wraps
+from werkzeug.security import generate_password_hash
+
+from datetime import date
+from typing import List
+import os
+
+
+# Loading app and all related modules
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get("FLASK_KEY")
+ckeditor = CKEditor(app)
+Bootstrap5(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+gravatar = Gravatar(app,
+                    size=100,
+                    rating='g',
+                    default='retro',
+                    force_default=False,
+                    use_ssl=False,
+                    base_url=None)
 
-footer_variables = [datetime.now().year, "Lukas Sofka"]
-Python100DaysPosts_URL = "https://api.npoint.io/5d28e60a504e89829062"
-WebDevPosts_URL = "https://api.npoint.io/9a50a8d50c519db0d8ed"
+# Creating connection with database
+class Base(DeclarativeBase):
+    pass
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI")
+db = SQLAlchemy(model_class=Base)
+db.init_app(app)
 
 
-class Post:
-    def __init__(self, post: dict) -> None:
-        self.id = post["id"]
-        self.title = post["title"]
-        self.subtitle = post["subtitle"]
-        self.body = post["body"]
-        self.date = post["date"]
-        self.author = post["author"]
+# CONFIGURE TABLES
+class BlogPost(db.Model):
+    __tablename__ = "blog_posts"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(String(250), unique=True, nullable=False)
+    subtitle: Mapped[str] = mapped_column(String(250), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    img_url: Mapped[str] = mapped_column(String(250), nullable=False)
+    date: Mapped[str] = mapped_column(String(250), nullable=False)
+    author: Mapped["User"] = relationship(back_populates="posts")
+    author_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    comments: Mapped[List["Comment"]] = relationship(back_populates="parent_post")
 
-        if post["img-id"] != "None":
-            self.img_id = post["img-id"]
-            self.img = f'../static/img/{self.img_id}'
 
-        else:
-            self.img = False
+class User(db.Model, UserMixin):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(String(100), unique=False, nullable=False)
+    password: Mapped[str] = mapped_column(String(100), unique=False, nullable=False)
+    email: Mapped[str] = mapped_column(String(250), unique=True, nullable=False)
+    posts: Mapped[List["BlogPost"]] = relationship(back_populates="author")
+    comments: Mapped[List["Comment"]] = relationship(back_populates="author")
+
+class Comment(db.Model):
+    __tablename__ = "comments"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    author: Mapped["User"] = relationship(back_populates="comments")
+    author_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    parent_post: Mapped["BlogPost"] = relationship(back_populates="comments")
+    parent_post_id: Mapped[int] = mapped_column(ForeignKey("blog_posts.id"))
+    posted_time : Mapped[str] = mapped_column(Text, nullable=False) # TODO add time function which calculates the time from post being posted
 
 
 @app.route('/')

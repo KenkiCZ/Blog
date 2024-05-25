@@ -12,7 +12,8 @@ from werkzeug.security import generate_password_hash
 
 from datetime import date
 from typing import List
-import os
+from forms import *
+import os, datetime
 
 
 # Loading app and all related modules
@@ -72,6 +73,13 @@ class Comment(db.Model):
     posted_time : Mapped[str] = mapped_column(Text, nullable=False) # TODO add time function which calculates the time from post being posted
 
 
+class VariableManager():
+    def __init__(self):
+        self.current_user = current_user
+        self.year = datetime.datetime.now().strftime("%Y")
+        self.author = "Lukas Sofka"
+
+
 with app.app_context():
     db.create_all()
 
@@ -129,6 +137,41 @@ def hash_password(password: str)->str:
     return generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
 
 
+# User Authentication Pages
+@app.route('/register', methods=["GET", "POST"])
+def register():
+    register_form = RegisterForm(db=db, User=User)
+    if register_form.validate_on_submit():
+        if db.session.execute(db.select(User).where(User.email == register_form.email.data)).scalar():
+            flash("Email already in use")
+            return redirect(url_for("register"))
+        
+        else:
+            hashed_password = hash_password(password=register_form.password.data)
+            new_user = User(username=register_form.username.data, password=hashed_password, email=register_form.email.data)
+            db.session.add(new_user)
+            db.session.commit()
+
+            login_user(new_user)
+            return redirect(url_for("get_all_posts"))
+    return render_template("register.html", form=register_form, current_user=current_user)
+
+
+@app.route('/login', methods=["POST", "GET"])
+def login():
+    login_form = LoginForm(db=db, User=User)
+    if login_form.validate_on_submit():
+        user = db.session.execute(db.select(User).where(User.email == login_form.email.data)).scalar()
+        login_user(user)
+        return redirect(url_for("get_all_posts"))
+    return render_template("login.html", form=login_form, current_user=current_user)
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+
 
 # Content pages 
 @app.route('/')
@@ -136,7 +179,13 @@ def main_hub():
     return render_template("index.html", footer=footer_variables,
                            header_img_path = "../static/img/cube-like-bg.jpg")
 
+@app.route('/')
+def get_all_categories():
+    result = db.session.execute(db.select(BlogPost))
+    categories = result.scalars().all()
+    return render_template("index.html", variables=VariableManager(), categories=categories)
 
+ # X X X X
 @app.route('/python')
 def get_python_page():
     return render_template("python_page.html", footer=footer_variables,
@@ -197,5 +246,4 @@ def get_blog_post(blog_type):
 
 
 if __name__ == "__main__":
-    # app.run(debug=False, host='0.0.0.0', port=3000)
-    app.run(debug=True)
+    app.run(debug=False, port=5000)

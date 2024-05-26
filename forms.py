@@ -61,7 +61,7 @@ class LoginForm(FlaskForm):
 class CreatePostForm(FlaskForm):
     title = StringField("Blog Post Title", validators=[DataRequired()])
     subtitle = StringField("Subtitle", validators=[DataRequired()])
-    img_url = StringField("Blog Image URL", validators=[DataRequired()])
+    img_url = StringField("Blog Image URL", validators=[DataRequired(), validators.URL()])
     body = CKEditorField("Blog Content", validators=[DataRequired()])
     submit = SubmitField("Submit Post")
 
@@ -69,3 +69,10 @@ class CreatePostForm(FlaskForm):
 class CommentForm(FlaskForm):
     body = StringField("Comment", validators=[DataRequired(), validators.Length(max=300, message="Limit exceeded! (Only 300 characters per comment)")])
     submit = SubmitField("Submit Comment")
+
+
+class CategoryForm(FlaskForm):
+    title = StringField("Blog Post Title", validators=[DataRequired()])
+    subtitle = StringField("Subtitle", validators=[DataRequired()])
+    img_url = StringField("Blog Image URL", validators=[DataRequired(), validators.URL()])
+    submit = SubmitField("Submit Category")

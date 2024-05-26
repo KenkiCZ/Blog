@@ -1,42 +1,63 @@
-        <!-- Footer-->
-        <footer class="border-top">
-          <div class="container px-4 px-lg-5">
-              <div class="row gx-4 gx-lg-5 justify-content-center">
-                  <div class="col-md-10 col-lg-8 col-xl-7">
-                      <ul class="list-inline text-center">
-                          <li class="list-inline-item">
-                              <a href="#!">
-                                  <span class="fa-stack fa-lg">
-                                      <i class="fas fa-circle fa-stack-2x"></i>
-                                      <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
-                                  </span>
-                              </a>
-                          </li>
-                          <li class="list-inline-item">
-                              <a href="#!">
-                                  <span class="fa-stack fa-lg">
-                                      <i class="fas fa-circle fa-stack-2x"></i>
-                                      <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
-                                  </span>
-                              </a>
-                          </li>
-                          <li class="list-inline-item">
-                              <a href="#!">
-                                  <span class="fa-stack fa-lg">
-                                      <i class="fas fa-circle fa-stack-2x"></i>
-                                      <i class="fab fa-github fa-stack-1x fa-inverse"></i>
-                                  </span>
-                              </a>
-                          </li>
-                      </ul>
-                      <div class="small text-center text-muted fst-italic">Copyright &copy; Your Website 2024</div>
-                  </div>
-              </div>
-          </div>
-      </footer>
-      <!-- Bootstrap core JS-->
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-      <!-- Core theme JS-->
-      <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-EdBekJGAOTJmVab83y/dgk8npW2Xaz3+J3xF+uBtKUkLZ5r3pu/AEwPbdZnH06nlAV4L5tksFJQIoA9PzM+gZQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+            .popover {
+            display: none;
+            position: fixed; /* Changed from fixed */
+            left: 50%; /* Adjust as needed */
+            top: 78vh; /* Adjust as needed */
+            font-size: small;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 9999;
+        }
+
+    </style>
+</head>
+<body>
+    <footer class="border-top">
+        <div class="container px-4 px-lg-5">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-md-10 col-lg-8 col-xl-7">
+                    <ul class="list-inline text-center">
+                        <li class="list-inline-item">
+                            <a href="https://www.instagram.com/sofkalukas/">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fas fa-circle fa-stack-2x"></i>
+                                    <i class="fab fa-instagram fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a href="#!">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fas fa-circle fa-stack-2x"></i>
+                                    <i class="fab fa-discord fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                        <li id="githubIcon" class="list-inline-item">
+                            <a href="https://github.com/KenkiCZ">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fas fa-circle fa-stack-2x"></i>
+                                    <i class="fab fa-github fa-stack-1x fa-inverse">KenkiCZ</i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="small text-center text-muted fst-italic">Copyright &copy; 2024 | Lukas Sofka</div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <div id="popover" class="popover"></div>
+    <script src="../static/js/discord.js"></script>
+</body>
 </html>

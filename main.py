@@ -40,6 +40,17 @@ db.init_app(app)
 
 
 # CONFIGURE TABLES
+class BlogCategory(db.Model):
+    __tablename__ = "blog_categories"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(String(250), unique=True, nullable=False)
+    subtitle: Mapped[str] = mapped_column(String(250), nullable=False)
+    img_url: Mapped[str] = mapped_column(String(250), nullable=False)
+    author: Mapped["User"] = relationship(back_populates="categories")
+    author_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    posts: Mapped[List["BlogPost"]] = relationship(back_populates="category")
+
+
 class BlogPost(db.Model):
     __tablename__ = "blog_posts"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -48,8 +59,13 @@ class BlogPost(db.Model):
     body: Mapped[str] = mapped_column(Text, nullable=False)
     img_url: Mapped[str] = mapped_column(String(250), nullable=False)
     date: Mapped[str] = mapped_column(String(250), nullable=False)
+    
     author: Mapped["User"] = relationship(back_populates="posts")
     author_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+
+    category: Mapped["BlogCategory"] = relationship(back_populates="posts")
+    category_id: Mapped[int] = mapped_column(ForeignKey("blog_categories.id"))
+
     comments: Mapped[List["Comment"]] = relationship(back_populates="parent_post")
 
 
@@ -61,6 +77,7 @@ class User(db.Model, UserMixin):
     email: Mapped[str] = mapped_column(String(250), unique=True, nullable=False)
     posts: Mapped[List["BlogPost"]] = relationship(back_populates="author")
     comments: Mapped[List["Comment"]] = relationship(back_populates="author")
+    categories: Mapped[List["BlogCategory"]] = relationship(back_populates="author")
 
 class Comment(db.Model):
     __tablename__ = "comments"
@@ -74,10 +91,11 @@ class Comment(db.Model):
 
 
 class VariableManager():
-    def __init__(self):
+    def __init__(self, edit:bool=False):
         self.current_user = current_user
         self.year = datetime.datetime.now().strftime("%Y")
         self.author = "Lukas Sofka"
+        self.edit = edit
 
 
 with app.app_context():
@@ -153,8 +171,10 @@ def register():
             db.session.commit()
 
             login_user(new_user)
-            return redirect(url_for("get_all_posts"))
-    return render_template("register.html", form=register_form, current_user=current_user)
+            return redirect(url_for("main_hub"))
+    return render_template("register.html",
+                           variables=VariableManager(),
+                           form=register_form)
 
 
 @app.route('/login', methods=["POST", "GET"])
@@ -163,21 +183,45 @@ def login():
     if login_form.validate_on_submit():
         user = db.session.execute(db.select(User).where(User.email == login_form.email.data)).scalar()
         login_user(user)
-        return redirect(url_for("get_all_posts"))
-    return render_template("login.html", form=login_form, current_user=current_user)
+        return redirect(url_for("main_hub"))
+    return render_template("login.html",
+                           variables=VariableManager(),
+                           form=login_form)
 
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
+    return redirect(url_for("main_hub"))
 
 
 # Content pages 
 @app.route('/')
 def main_hub():
+    categories_result = db.session.execute(db.select(BlogCategory))
+    categories = categories_result.scalars().all()
     return render_template("index.html",
-                           variables=VariableManager())
+                           variables=VariableManager(),
+                           categories=categories)
+
+@app.route("/new-category", methods=["GET", "POST"])
+@login_required
+def new_category():
+    category_form = CategoryForm()
+    if category_form.validate_on_submit():
+        new_category = BlogCategory(title=category_form.title.data,
+                                    subtitle=category_form.subtitle.data,
+                                    img_url = category_form.img_url.data,
+                                    author=current_user)
+        db.session.add(new_category)
+        db.session.commit()
+
+        return redirect(url_for("main_hub"))
+    return render_template("new_category.html",
+                           variables=VariableManager(edit=False),
+                           form=category_form)
+    
 
 
 if __name__ == "__main__":

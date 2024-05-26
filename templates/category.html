@@ -20,28 +20,24 @@
     <div class="col-md-10 col-lg-8 col-xl-7">
 
       <!-- Post preview-->
-      <div class="container px-4 px-lg-5">
-        <div class="row my-5">
-            {% for category in categories%}
+      {% for category in categories%}
+      <div class="post-preview">
+        <a href="">
+          <h2 class="post-title">{{ category.title }}</h2>
+          <h3 class="post-subtitle">{{ category.subtitle }}</h3>
+        </a>
+        <p class="post-meta">
+          Posted by
+          <a href="#">{{ category.author.username }}</a>
+          {% if variables.current_user.id == 1 %}
+          <a href="">✘</a>
+          {% endif %}
+        </p>
 
-            <div class="topics col-md-10 col-lg-6 col-xl-6 my-5 text-center">
-              <a href="">
-                  <h2 class="post-title">{{ category.title }}</h2>
-                  <p>{{ category.subtitle }}</p>
-                  <img class="main-page-images" src="{{url_for('static', filename='img/category_images/python-main-image.jpg')}}" alt="">
-              </a>
-
-              <p class="post-meta">
-                Posted by
-                <a href="#">{{ category.author.username }}</a>
-                {% if variables.current_user.id == 1 %}
-                <a style="" href="">✘</a>
-                {% endif %}
-              </p>
-
-              {% endfor %}
-            </div>
-        </div>
+      </div>
+      <!-- Divider-->
+      <hr class="my-4" />
+      {% endfor %}
 
       <!-- New Post -->
       {% if variables.current_user.id == 1 %}

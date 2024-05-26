@@ -16,8 +16,6 @@
 
 <!-- Main Content-->
 <div class="container px-4 px-lg-5">
-  <div class="row gx-4 gx-lg-5 justify-content-center">
-    <div class="col-md-10 col-lg-8 col-xl-7">
 
       <!-- Post preview-->
       <div class="container px-4 px-lg-5">
@@ -30,18 +28,10 @@
                   <p>{{ category.subtitle }}</p>
                   <img class="main-page-images" src="{{url_for('static', filename='img/category_images/python-main-image.jpg')}}" alt="">
               </a>
-
-              <p class="post-meta">
-                Posted by
-                <a href="#">{{ category.author.username }}</a>
-                {% if variables.current_user.id == 1 %}
-                <a style="" href="">✘</a>
-                {% endif %}
-              </p>
-
-              {% endfor %}
             </div>
+            {% endfor %}
         </div>
+      </div>
 
       <!-- New Post -->
       {% if variables.current_user.id == 1 %}
@@ -53,8 +43,6 @@
         >
       </div>
       {% endif %}
-    </div>
-  </div>
 </div>
 
 {% include "footer.html" %}

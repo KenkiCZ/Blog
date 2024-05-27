@@ -276,7 +276,7 @@ def delete_item(item, id):
     db.session.commit()
     return redirect(url_for("main_hub"))
 
-
+# TODO Make posts accessible
 @app.route("/category/<int:c_id>/post/<int:p_id>", methods=["GET", "POST"])
 @login_required
 def view_post(c_id, p_id):

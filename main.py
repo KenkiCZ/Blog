@@ -155,6 +155,13 @@ def hash_password(password: str)->str:
     return generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
 
 
+def check_image(img: str)->str:
+    if img == "Default":
+        return "coding-bg.jpg"
+    else:
+        return img
+
+
 # User Authentication Pages
 @app.route('/register', methods=["GET", "POST"])
 def register():
@@ -269,21 +276,33 @@ def delete_item(item, id):
     return redirect(url_for("main_hub"))
 
 
-@app.route("/category/<int:c_id>/post/<int:p_id>")
+@app.route("/category/<int:c_id>/post/<int:p_id>", methods=["GET", "POST"])
 def view_post(c_id, p_id):
     category_result = db.session.execute(db.select(BlogCategory).where(BlogCategory.id == c_id)).scalar()
-    post = [post for post in category_result.posts if post == p_id]
-    return render_template("post.html") # TODO 
+    post = [post for post in category_result.posts if post.id == p_id]
+    comment_form = CommentForm()
+    if comment_form.validate_on_submit():
+        new_comment = Comment(text=comment_form.body.data,
+                              author_id=current_user.id,
+                              parent_post_id=p_id,
+                              posted_time=datetime.datetime.now().strftime("%d/%m/%Y"))
+        db.session.add(new_comment)
+        db.session.commit()
+        return redirect(url_for("view_post", c_id=c_id, p_id=p_id))
+    return render_template("post.html",
+                           variables=VariableManager(),
+                           post=post[0],
+                           form=comment_form) 
 
 
 @app.route("/category/<int:c_id>/new-post", methods=["GET", "POST"])
 @admin_only
 def new_post(c_id):
-    post_form = CreatePostForm()
+    post_form = CreatePostForm(img_url="Default")
     if post_form.validate_on_submit():
         new_post = BlogPost(title=post_form.title.data,
                             subtitle=post_form.subtitle.data,
-                            img_url=post_form.img_url.data,
+                            img_url=check_image(post_form.img_url.data),
                             body=post_form.body.data,
                             category_id=c_id,
                             author=current_user,
@@ -296,6 +315,53 @@ def new_post(c_id):
     return render_template("new-post.html",
                            variables=VariableManager(edit=False),
                            form=post_form)
+
+
+@app.route("/category/<int:c_id>/edit-post/<int:p_id>", methods=["POST", "GET"])
+@admin_only
+def edit_post(c_id, p_id):
+    post = db.session.execute(db.select(BlogPost).where(BlogPost.id == p_id)).scalar()
+    edit_form = CreatePostForm(obj=post)
+    if edit_form.validate_on_submit():
+        post.title=edit_form.title.data
+        post.subtitle=edit_form.subtitle.data
+        post.img_url=check_image(edit_form.img_url.data)
+        post.body=edit_form.body.data
+        db.session.commit()
+        return redirect(url_for("view_category", id=c_id))
+    return render_template("new-post.html",
+                           variables=VariableManager(edit=True),
+                           form=edit_form)
+
+
+@app.route("/category/<int:c_id>/post/<int:p_id>/delete-comment/<int:comment_id>")
+@only_commenter
+def delete_comment(c_id, p_id, comment_id):
+    comment_delete = db.get_or_404(Comment, comment_id)
+    db.session.delete(comment_delete)
+    db.session.commit()
+    return redirect(url_for('view_post', c_id=c_id,p_id=p_id))
+
+
+@app.route("/category/<int:c_id>/delete/<int:p_id>")
+@admin_only
+def delete_post(c_id, p_id):
+    post_to_delete = db.get_or_404(BlogPost, p_id)
+    db.session.delete(post_to_delete)
+    db.session.commit()
+    return redirect(url_for('view_category', id=c_id))
+
+
+@app.route("/about")
+def about():
+    return render_template("about.html",
+                            variables=VariableManager())
+
+
+@app.route("/contact")
+def contact():
+    return render_template("contact.html",
+                            variables=VariableManager())
 
 
 if __name__ == "__main__":

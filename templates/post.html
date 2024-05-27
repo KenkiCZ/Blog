@@ -1,7 +1,8 @@
 {% from "bootstrap5/form.html" import render_form %}
 {% include "header.html" %}
 
-<header class="masthead" style="background-image: url('{{post.img_url}}')">
+
+<header class="masthead" style="background-image: url('{{ url_for('static', filename='img/post_images/'+post.img_url) }}')">
   <div class="container position-relative px-4 px-lg-5">
     <div class="row gx-4 gx-lg-5 justify-content-center">
       <div class="col-md-10 col-lg-8 col-xl-7">
@@ -9,8 +10,8 @@
           <h1>{{ post.title }}</h1>
           <h2 class="subheading">{{ post.subtitle }}</h2>
           <span class="meta">
-            Posted by
-            <a href="#">{{ post.author.username }}</a>
+            Posted by {{ post.author.username }}
+            <a href="#"></a>
             on {{ post.date }}
           </span>
         </div>
@@ -27,7 +28,7 @@
         {{ post.body|safe }}
         {% if current_user.id == 1 %}
         <div class="d-flex justify-content-end mb-4">
-          <a class="btn btn-primary float-right" href="{{url_for('edit_post', post_id=post.id)}}">Edit Post</a>
+          <a class="btn btn-primary float-right" href="{{url_for('edit_post', c_id=post.category_id, p_id=post.id)}}">Edit Post</a>
         </div>
         {% endif %}
 
@@ -54,7 +55,7 @@
                   <span class="authorName text-muted">{{ comment.author.username }}</span>
                   
                   {% if comment.author.email == current_user.email %}
-                  <a href="{{ url_for('delete_comment', comment_id=comment.id, post_id=post.id) }}" class="ms-2 text-danger text-decoration-none">Delete Comment</a>
+                  <a href="{{ url_for('delete_comment', c_id=post.category_id, p_id=post.id, comment_id=comment.id) }}" style="color: red;" class="ms-2 text-danger text-decoration-none">Delete Comment</a>
                   {% endif %}
                   <span class="commentDate fw-bold">{{ comment.posted_time }}</span>
                 </div>

@@ -22,15 +22,15 @@
       <!-- Post preview-->
       {% for post in category.posts%}
       <div class="post-preview">
-        <a href="">
+        <a href="{{url_for('view_post', c_id=category.id, p_id=post.id)}}">
           <h2 class="post-title">{{ post.title }}</h2>
           <h3 class="post-subtitle">{{ post.subtitle }}</h3>
         </a>
         <p class="post-meta">
           Posted by
-          <a href="#">{{ post.author.username }}</a>
+          <a href="#">{{ post.author.username }} |</a>
           {% if variables.current_user.id == 1 %}
-          <a href="">✘</a>
+          <a  style="color: red;" href="{{ url_for('delete_post', c_id=category.id, p_id=post.id) }}">DELETE</a>
           {% endif %}
         </p>
 

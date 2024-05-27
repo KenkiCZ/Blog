@@ -2,8 +2,8 @@ import smtplib
 import os
 
 PORT = 587
-MY_EMAIL = "lukassofka@gmail.com" #os.environ.get("MY_EMAIL")
-MY_PASSWORD = "crlcdwshzdebdqcw" #os.environ.get("MY_PASSWORD")
+MY_EMAIL = os.environ.get("MY_EMAIL")
+MY_PASSWORD = os.environ.get("MY_PASSWORD")
 
 def send_email(name: str, email: str, phone_number:str, message: str):
     if not email:

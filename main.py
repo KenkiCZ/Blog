@@ -18,7 +18,7 @@ import datetime, os
 
 # Loading app and all related modules
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "AHOJDA" #os.environ.get("FLASK_KEY")
+app.config['SECRET_KEY'] = os.environ.get("FLASK_KEY")
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 login_manager = LoginManager()
@@ -34,7 +34,7 @@ gravatar = Gravatar(app,
 # Creating connection with database
 class Base(DeclarativeBase):
     pass
-app.config['SQLALCHEMY_DATABASE_URI'] =  "sqlite:///blog.db" # os.environ.get("DB_URI")
+app.config['SQLALCHEMY_DATABASE_URI'] =  os.environ.get("DB_URI")
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 

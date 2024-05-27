@@ -34,7 +34,7 @@ gravatar = Gravatar(app,
 # Creating connection with database
 class Base(DeclarativeBase):
     pass
-app.config['SQLALCHEMY_DATABASE_URI'] =  os.environ.get("DB_URI")
+app.config['SQLALCHEMY_DATABASE_URI'] =  os.environ.get("DB_URI" )
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
@@ -278,6 +278,7 @@ def delete_item(item, id):
 
 
 @app.route("/category/<int:c_id>/post/<int:p_id>", methods=["GET", "POST"])
+@login_required
 def view_post(c_id, p_id):
     category_result = db.session.execute(db.select(BlogCategory).where(BlogCategory.id == c_id)).scalar()
     post = [post for post in category_result.posts if post.id == p_id]

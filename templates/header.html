@@ -1,118 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="This is my personal website. Without commercial purposes." />
-    <meta name="author" content="Lukas Sofka" />
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="This is my personal website. Without commercial purposes.">
+  <meta name="author" content="Lukas Sofka">
 
-    <title>Lukas Blog</title>
-    {% block styles %}
-    <!-- Load Bootstrap-Flask CSS here -->
-    {{ bootstrap.load_css() }}
-    <link
-      rel="icon"
-      type="image/x-icon"
-      href="{{ url_for('static', filename='assets/favicon.ico') }}"
-    />
-    <!-- Font Awesome icons (free version)-->
-    <script
-      src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"
-      crossorigin="anonymous"
-    ></script>
-    <!-- Google fonts-->
-    <link
-      href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic"
-      rel="stylesheet"
-      type="text/css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"
-      rel="stylesheet"
-      type="text/css"
-    />
-    <!-- Core theme CSS (includes Bootstrap)-->
-    <link
-      href="{{ url_for('static', filename='css/styles.css') }}"
-      rel="stylesheet"
-    />
-    <!-- CSS file for editing main images-->
-    <link
-      href="{{ url_for('static', filename='css/category_images.css') }}"
-      rel="stylesheet"
-    />
+  <title>Lukas Blog</title>
+  {% block styles %}
+  <!-- Load Bootstrap-Flask CSS here -->
+  {{ bootstrap.load_css() }}
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.ico') }}">
+  <!-- Font Awesome icons (free version)-->
+  <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+  <!-- Google fonts-->
+  <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+  <!-- Core theme CSS (includes Bootstrap)-->
+  <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+  <!-- CSS file for editing main images-->
+  <link href="{{ url_for('static', filename='css/category_images.css') }}" rel="stylesheet">
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/5.0.0-beta3/css/bootstrap.min.css" rel="stylesheet">
+  {% endblock %}
+</head>
+<body>
+  <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+    <div class="col-md-3 mb-2 mb-md-0">
+      <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+        <svg class="bi" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+      </a>
+    </div>
 
-    {% endblock %}
+    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+      <li class="mx-5"><a href="{{ url_for('main_hub') }}" class="nav-link px-2 link-secondary">Home</a></li>
+      <li class="mx-5"><a href="{{ url_for('contact') }}" class="nav-link px-2">Contact</a></li>
+      <li class="mx-5"><a href="{{ url_for('about') }}" class="nav-link px-2">About</a></li>
+    </ul>
 
-  </head>
-  <body>
-    <!-- Navigation-->
-    <nav class="navbar navbar-expand-lg navbar-light" id="mainNav">
-      <div class="container px-4 px-lg-5">
-        <a class="navbar-brand" href="/">Home</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarResponsive"
-          aria-controls="navbarResponsive"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          Menu
-          <i class="fas fa-bars"></i>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarResponsive">
-          <ul class="navbar-nav ms-auto py-4 py-lg-0">
-            <li class="nav-item">
-              <a
-                class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('main_hub') }}"
-                >Home</a
-              >
-            </li>
-            {% if not variables.current_user.is_authenticated %}
-            <li class="nav-item">
-              <a
-                class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('login') }}"
-                >Login</a
-              >
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('register') }}"
-                >Register</a
-              >
-            </li>
-            {% endif %}
-            {% if variables.current_user.is_authenticated %}
-            <li class="nav-item">
-              <a
-                class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('logout') }}"
-                >Log Out</a
-              >
-            </li>
-            {% endif %}
-            <li class="nav-item">
-              <a
-                class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('about') }}"
-                >About</a
-              >
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('contact') }}"
-                >Contact</a
-              >
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-  </body>
+    <div class="col-md-3 text-end">
+      <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+        {% if not variables.current_user.is_authenticated %}
+        <li><a href="{{ url_for('login') }}" class="btn btn-outline-primary me-2">Login</a></li>
+        <li><a href="{{ url_for('register') }}" class="btn btn-primary">Register</a></li>
+        {% endif %}
+        {% if variables.current_user.is_authenticated %}
+        <li><a href="{{ url_for('logout') }}" class="btn btn-outline-danger">Logout</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </header>
+</body>
 </html>

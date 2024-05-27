@@ -61,7 +61,7 @@ class LoginForm(FlaskForm):
 class CreatePostForm(FlaskForm):
     title = StringField("Blog Post Title", validators=[DataRequired()])
     subtitle = StringField("Subtitle", validators=[DataRequired()])
-    img_url = StringField("Blog Image URL", validators=[DataRequired(), validators.URL()])
+    img_url = StringField("Blog Image Path", validators=[DataRequired()])
     body = CKEditorField("Blog Content", validators=[DataRequired()])
     submit = SubmitField("Submit Post")
 
@@ -72,7 +72,7 @@ class CommentForm(FlaskForm):
 
 
 class CategoryForm(FlaskForm):
-    title = StringField("Blog Post Title", validators=[DataRequired()])
+    title = StringField("Category Post Title", validators=[DataRequired()])
     subtitle = StringField("Subtitle", validators=[DataRequired()])
-    img_url = StringField("Blog Image URL", validators=[DataRequired(), validators.URL()])
+    img_url = StringField("Category Image Path", validators=[DataRequired()])
     submit = SubmitField("Submit Category")

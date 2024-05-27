@@ -10,7 +10,7 @@ include "header.html" %}
     <div class="row gx-4 gx-lg-5 justify-content-center">
       <div class="col-md-10 col-lg-8 col-xl-7">
         <div class="page-heading">
-          {% if is_edit: %}
+          {% if variables.edit: %}
           <h1>Edit Post</h1>
           {% else: %}
           <h1>New Post</h1>
@@ -28,8 +28,8 @@ include "header.html" %}
   <div class="container">
     <div class="row">
       <div class="col-lg-8 col-md-10 mx-auto">
-        {{ ckeditor.load() }} {{ ckeditor.config(name='body') }} {{
-        render_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+        {{ ckeditor.load() }} {{ ckeditor.config(name='body') }} 
+        {{render_form(form, novalidate=True, button_map={"submit": "primary"}) }}
       </div>
     </div>
   </div>

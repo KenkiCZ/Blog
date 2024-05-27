@@ -23,10 +23,10 @@
             {% for category in categories%}
 
             <div class="topics col-md-10 col-lg-6 col-xl-6 my-5 text-center">
-              <a href="">
+              <a href="{{ url_for('view_category', id=category.id) }}">
                   <h2 class="post-title">{{ category.title }}</h2>
                   <p>{{ category.subtitle }}</p>
-                  <img class="main-page-images" src="{{url_for('static', filename='img/category_images/python-main-image.jpg')}}" alt="">
+                  <img class="main-page-images" src="{{ url_for('static', filename='img/category_images/'+category.img_url) }}" alt="">
               </a>
             </div>
             {% endfor %}

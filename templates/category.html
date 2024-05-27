@@ -1,13 +1,13 @@
 {% include "header.html" %}
 
 <!-- Page Header-->
-<header class="masthead" style="background-image: url('{{ url_for('static', filename='img/background_images/cube-like-bg.jpg') }}')">
+<header class="masthead" style="background-image: url('{{ url_for('static', filename='img/category_images/'+category.img_url) }}')">
   <div class="container position-relative px-4 px-lg-5">
       <div class="row gx-4 gx-lg-5 justify-content-center">
-          <div class="col-md-10 col-lg-8 col-xl-7">
+          <div class="col-md-10 col-lg-10 col-xl-8">
               <div class="site-heading">
-                  <h1>Lukas Blog</h1>
-                  <span class="subheading">My Everyday Math and Code Experience</span>
+                  <h1>{{category.title}}</h1>
+                  <span class="subheading">{{category.subtitle}}</span>
               </div>
           </div>
       </div>
@@ -20,15 +20,15 @@
     <div class="col-md-10 col-lg-8 col-xl-7">
 
       <!-- Post preview-->
-      {% for category in categories%}
+      {% for post in category.posts%}
       <div class="post-preview">
         <a href="">
-          <h2 class="post-title">{{ category.title }}</h2>
-          <h3 class="post-subtitle">{{ category.subtitle }}</h3>
+          <h2 class="post-title">{{ post.title }}</h2>
+          <h3 class="post-subtitle">{{ post.subtitle }}</h3>
         </a>
         <p class="post-meta">
           Posted by
-          <a href="#">{{ category.author.username }}</a>
+          <a href="#">{{ post.author.username }}</a>
           {% if variables.current_user.id == 1 %}
           <a href="">✘</a>
           {% endif %}
@@ -42,11 +42,8 @@
       <!-- New Post -->
       {% if variables.current_user.id == 1 %}
       <div class="d-flex justify-content-end mb-4">
-        <a
-          class="btn btn-primary float-right"
-          href="{{ url_for('new_category') }}"
-          >Create New Category</a
-        >
+        <a class="btn btn-primary float-right mx-3" href="{{ url_for('new_post', c_id=category.id)}}">Create New Post</a>
+        <a class="btn btn-primary float-right mx-3" href="{{ url_for('edit_category', c_id=category.id)}}">Edit Category</a>
       </div>
       {% endif %}
     </div>

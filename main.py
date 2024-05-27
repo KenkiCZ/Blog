@@ -206,7 +206,7 @@ def main_hub():
                            categories=categories)
 
 @app.route("/new-category", methods=["GET", "POST"])
-@login_required
+@admin_only
 def new_category():
     category_form = CategoryForm()
     if category_form.validate_on_submit():
@@ -221,7 +221,81 @@ def new_category():
     return render_template("new_category.html",
                            variables=VariableManager(edit=False),
                            form=category_form)
+
+
+@app.route("/category/<int:id>")
+def view_category(id):
+    category_result = db.session.execute(db.select(BlogCategory).where(BlogCategory.id == id))
+    category = category_result.scalar()
+    return render_template("category.html",
+                           variables=VariableManager(),
+                           category=category)
+
+
+@app.route("/edit-category/<int:c_id>", methods=["GET", "POST"])
+@admin_only
+def edit_category(c_id):
+    id = c_id
+    category_result = db.session.execute(db.select(BlogCategory).where(BlogCategory.id == id))
+    category = category_result.scalar()
+    edit_form = CategoryForm(title=category.title,
+                             subtitle=category.subtitle,
+                             img_url=category.img_url)
+    if edit_form.validate_on_submit():
+        category.title = edit_form.title.data
+        category.subtitle = edit_form.subtitle.data
+        category.img_url = edit_form.img_url.data
+        db.session.commit()
+        return redirect(url_for("view_category", id=id))
     
+    return render_template("new_category.html",
+                           variables=VariableManager(edit=True),
+                           form=edit_form,
+                           id=id)
+
+
+@app.route("/delete/<string:item>/<int:id>", methods=["GET", "POST"])
+@admin_only
+def delete_item(item, id):
+    if item == "category":
+        result = db.session.execute(db.select(BlogCategory).where(BlogCategory.id == id)).scalar()
+    elif item == "post":
+        result = db.session.execute(db.select(BlogPost).where(BlogPost.id == id)).scalar()
+    else:
+        flash("Invalid item type")
+    
+    db.session.delete(result)
+    db.session.commit()
+    return redirect(url_for("main_hub"))
+
+
+@app.route("/category/<int:c_id>/post/<int:p_id>")
+def view_post(c_id, p_id):
+    category_result = db.session.execute(db.select(BlogCategory).where(BlogCategory.id == c_id)).scalar()
+    post = [post for post in category_result.posts if post == p_id]
+    return render_template("post.html") # TODO 
+
+
+@app.route("/category/<int:c_id>/new-post", methods=["GET", "POST"])
+@admin_only
+def new_post(c_id):
+    post_form = CreatePostForm()
+    if post_form.validate_on_submit():
+        new_post = BlogPost(title=post_form.title.data,
+                            subtitle=post_form.subtitle.data,
+                            img_url=post_form.img_url.data,
+                            body=post_form.body.data,
+                            category_id=c_id,
+                            author=current_user,
+                            date=datetime.datetime.now().strftime("%d/%m/%Y"))
+
+        db.session.add(new_post)
+        db.session.commit()
+
+        return redirect(url_for("view_category", id=c_id))
+    return render_template("new-post.html",
+                           variables=VariableManager(edit=False),
+                           form=post_form)
 
 
 if __name__ == "__main__":

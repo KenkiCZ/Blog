@@ -6,14 +6,14 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import Integer, String, Text, ForeignKey
+from sqlalchemy import Integer, String, Text, ForeignKey, select, desc
 from functools import wraps
 from werkzeug.security import generate_password_hash
 
-from datetime import date
 from typing import List
 from forms import *
-import os, datetime
+from web_email import *
+import datetime, os
 
 
 # Loading app and all related modules
@@ -91,11 +91,12 @@ class Comment(db.Model):
 
 
 class VariableManager():
-    def __init__(self, edit:bool=False):
+    def __init__(self, edit:bool=False, send_email:bool=False):
         self.current_user = current_user
         self.year = datetime.datetime.now().strftime("%Y")
         self.author = "Lukas Sofka"
         self.edit = edit
+        self.send_email = send_email
 
 
 with app.app_context():
@@ -232,7 +233,7 @@ def new_category():
 
 @app.route("/category/<int:id>")
 def view_category(id):
-    category_result = db.session.execute(db.select(BlogCategory).where(BlogCategory.id == id))
+    category_result = db.session.execute(select(BlogCategory).where(BlogCategory.id == id))
     category = category_result.scalar()
     return render_template("category.html",
                            variables=VariableManager(),
@@ -298,7 +299,7 @@ def view_post(c_id, p_id):
 @app.route("/category/<int:c_id>/new-post", methods=["GET", "POST"])
 @admin_only
 def new_post(c_id):
-    post_form = CreatePostForm(img_url="Default")
+    post_form = CreatePostForm(img_url="Default", date=datetime.datetime.now().strftime("%d/%m/%Y"))
     if post_form.validate_on_submit():
         new_post = BlogPost(title=post_form.title.data,
                             subtitle=post_form.subtitle.data,
@@ -306,7 +307,7 @@ def new_post(c_id):
                             body=post_form.body.data,
                             category_id=c_id,
                             author=current_user,
-                            date=datetime.datetime.now().strftime("%d/%m/%Y"))
+                            date=post_form.date.data)
 
         db.session.add(new_post)
         db.session.commit()
@@ -327,6 +328,7 @@ def edit_post(c_id, p_id):
         post.subtitle=edit_form.subtitle.data
         post.img_url=check_image(edit_form.img_url.data)
         post.body=edit_form.body.data
+        date=edit_form.date.data
         db.session.commit()
         return redirect(url_for("view_category", id=c_id))
     return render_template("new-post.html",
@@ -347,6 +349,7 @@ def delete_comment(c_id, p_id, comment_id):
 @admin_only
 def delete_post(c_id, p_id):
     post_to_delete = db.get_or_404(BlogPost, p_id)
+    [db.session.delete(comment) for comment in post_to_delete.comments]
     db.session.delete(post_to_delete)
     db.session.commit()
     return redirect(url_for('view_category', id=c_id))
@@ -358,8 +361,17 @@ def about():
                             variables=VariableManager())
 
 
-@app.route("/contact")
+@app.route("/contact", methods=["GET", "POST"])
 def contact():
+    if request.method == "POST":
+        response = send_email(name=request.form["name"],
+                              email=request.form["email"],
+                              phone_number=request.form["phone"],
+                              message=request.form["message"])
+        if response:
+            return render_template("contact.html",
+                                   variables=VariableManager(send_email=True))
+        
     return render_template("contact.html",
                             variables=VariableManager())
 
